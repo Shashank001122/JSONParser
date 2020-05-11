@@ -1,0 +1,203 @@
+<html>
+
+<head>
+    <title>Homework 4</title>
+    <script type="text/javascript">
+        //Global arrays
+        array1 = []
+        arrayData = []
+        arrayRank = []
+        arrayName = []
+        arrayHub = []
+        arrayHeight = []
+        arrayHome = []
+        arrayLogo = []
+
+        const building_list = (params) => {
+            var URL = params.URL.value;
+
+            const generateHTML = (objectjson) => {
+                arrayData = objectjson.Mainline.Table.Header.Data
+                arrayRank = objectjson.Mainline.Table.Row.map(row => row.Rank)
+                arrayName = objectjson.Mainline.Table.Row.map(row => row.Name)
+                arrayHub = objectjson.Mainline.Table.Row.map(row => row.Hubs)
+                    .map(row1 => row1.Hub)
+                arrayHeight = objectjson.Mainline.Table.Row.map(row => row.Height)
+                arrayHome = objectjson.Mainline.Table.Row.map(row => row.HomePage)
+                arrayLogo = objectjson.Mainline.Table.Row.map(row => row.Logo)
+
+                textdem = "<html><head><title style='align: center'> List of tallest buildings from JSON File</title ></head > <body> ";
+                textdem += "<table border='2'>";
+                textdem += "<tbody>";
+                textdem += "<tr>";
+                Array.from(arrayData).forEach((argD) => {
+                    if (!argD) {
+                        textdem += "<th></th>";
+                    }
+                    else {
+                        textdem += "<th>"
+                        textdem += argD
+                        textdem += "</th>"
+                    }
+                })
+
+                textdem += "</tr>";
+                for (i = 0; i < objectjson.Mainline.Table.Row.length; i++) {
+                    textdem += "<tr>";
+
+                    if (arrayRank[i] == null || arrayRank[i] == '') {
+                        textdem += "<td></td>";
+                    }
+                    else {
+                        textdem += "<td>"
+                        textdem += arrayRank[i];
+                        textdem += "</td>";
+                    }
+
+
+                    if (arrayName[i] == null || arrayName[i] == '') {
+                        textdem += "<td></td>";
+                    }
+                    else {
+                        textdem += "<td>"
+                        textdem += arrayName[i];
+                        textdem += "</td>"
+                    }
+
+                    if (arrayHub[i] == null || arrayHub[i] == '') {
+                        textdem += "<td></td>"
+                    }
+                    else {
+                        hub = arrayHub[i];
+                        if (hub.length > 0) {
+                            if (hub[0] == null || hub[0].trim() == "") {
+                                textdem += "<td><ul>";
+                            }
+                            else {
+                                textdem += "<td><ul><li><b>" + hub[0] + "</b></li>";
+                            }
+                            for (k = 1; k < hub.length; k++) {
+                                if (hub[k] != null && hub[k].trim() != "") {
+                                    textdem += "<li>" + hub[k] + "</li>";
+                                }
+                            }
+                            textdem += "</ul></td>";
+                        }
+
+                        else {
+                            textdem += "<td></td>";
+                        }
+                    }
+
+                    if (arrayHeight[i] == null || arrayHeight[i] == '') {
+                        textdem += "<td></td>";
+                    }
+                    else {
+                        textdem += "<td>"
+                        textdem += arrayHeight[i];
+                        textdem += "</td>"
+                    }
+
+
+                    if (arrayHome[i] == null || arrayHome[i] == '') {
+                        textdem += "<td></td>"
+                    }
+                    else {
+                        textdem += "<td><a href='" + arrayHome[i] + "'>" + arrayHome[i] + "</a></td>";
+                    }
+
+
+                    if (arrayLogo[i] == null || arrayLogo[i] == '') {
+                        textdem += "<td></td>";
+                    }
+                    else {
+                        textdem += "<td><img src='" + arrayLogo[i] + "' width='" + 150 + "' height='" + 150 + "'></td>";
+                    }
+                }
+                textdem += "</tbody>";
+                textdem += "</table>";
+                textdem += "</bo" + "<dy>"
+                textdem += "</html>";
+            }
+
+            const jsonLOAD = (url) => {
+
+                if (!url || !url.trim()) {
+                    alert('Empty Query, Please Enter a Json File name');
+                    return;
+                }
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("GET", url, false);
+                try {
+                    xmlhttp.send();
+                }
+                catch (err) {
+                    alert("Error: File Not Found");
+                    return;
+                }
+                var response
+                if (!(xmlhttp.readyState == 4 && xmlhttp.status == "200")) {
+                    alert("Error: File Not Found")
+                    return;
+                }
+                else {
+                    response = xmlhttp.responseText;
+                }
+
+                try {
+                    //call to check for all the json validations
+                    return CheckValidations(JSON.parse(response))
+                }
+                catch (err) {
+                    alert("Error while parsing the file");
+                    return;
+                }
+
+            }
+
+            //Error Handling for missing Header or Row or Row data..
+            const CheckValidations = (objectjson) => {
+                if (!(objectjson.Mainline.Table.hasOwnProperty('Header')) || !(objectjson.Mainline.Table.Header.hasOwnProperty('Data'))) {
+                    alert("Error: The Header information was not found in the JSON File");
+                    return;
+                }
+                else if (!(objectjson.Mainline.Table.hasOwnProperty('Row')) || !(objectjson.Mainline.Table.Row.length > 0)) {
+                    alert("Error: No Data/rows Entries found in the JSON file ");
+                    return;
+                }
+                return objectjson;
+            }
+
+            //call to jsonLOAD function
+            objectjson = jsonLOAD(URL);
+            if (!objectjson) {
+                return
+            }
+            else {
+                //call to generateHTML function
+                objectjson.onload = generateHTML(objectjson);
+                var newWindow = window.open('', 'newWindow', 'scrollbars=1,resizable=1,height=1000,width=1200,left=0,top=0');
+                newWindow.document.write(textdem);
+                newWindow.document.close();
+            }
+        }
+
+    </script>
+</head>
+
+
+<body style="margin-top: 7%;">
+    <div style=" text-align: center; margin: auto; ">
+        <p>
+            <h2>Enter URL for list of tallest buildings JSON File</h2>
+        </p>
+        <form name=" form1" method="POST" id="building">
+            <input type="text" name="URL" maxlength="100 " size="40" />
+            <br/>
+            <br/>
+            <input type="button" name="submit" value="Submit Query" onClick="building_list(this.form)" />
+        </form>
+    </div>
+</body>
+
+</html>
